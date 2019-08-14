@@ -5,8 +5,8 @@
 A tiny library that abstract the producer-sink asynchronous communication pattern by using PUSH and PULL socket types
 from ZeroMQ.
 
-.. image:: https://travis-ci.com/d2gex/pushpull_zmq.svg?branch=master
-    :target: https://travis-ci.com/d2gex/pushpull_zmq
+.. image:: https://travis-ci.com/d2gex/producer-sink-zmq.svg?branch=master
+    :target: https://travis-ci.com/d2gex/producer-sink-zmq
 
 .. image:: https://img.shields.io/badge/coverage-100%25-brightgreen.svg
     :target: #
@@ -16,7 +16,7 @@ Install and Run
 Producer-Sink-ZMQ is not available on PyPI yet, so you need to install it with pip providing a GitHub path as
 follows::
 
-    $ pip install git+https://github.com/d2gex/pushpull_zmq.git@0.1.0#egg=pushpull_zmq
+    $ pip install git+https://github.com/d2gex/producer-sink-zmq.git@0.1.1#egg=producer-sink-zmq
 
 
 .. code-block:: python
