@@ -1,0 +1,9 @@
+*.pyo
+*.pyc
+.DS_Store
+.cache
+.pytest_cache
+.python-version
+.coverage
+# To avoid accidents
+__pycache__

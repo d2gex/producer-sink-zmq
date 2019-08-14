@@ -1,0 +1,2 @@
+class PushPullError(Exception):
+    pass
