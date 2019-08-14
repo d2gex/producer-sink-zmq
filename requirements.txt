@@ -1,0 +1,4 @@
+setuptools==39.0.1
+pymulproc==0.1.1
+pytest==5.0.1
+pyzmq==18.1.0
