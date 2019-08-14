@@ -4,7 +4,7 @@ import multiprocessing
 import time
 
 from pymulproc import factory, mpq_protocol
-from pushpull_zmq import errors, ipeer, sink, producer
+from producer_sink import errors, ipeer, sink, producer
 from unittest.mock import patch
 from tests import utils as test_utils, stubs
 

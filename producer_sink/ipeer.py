@@ -1,7 +1,7 @@
 import abc
 import zmq
 
-from pushpull_zmq import errors
+from producer_sink import errors
 
 MAX_IPC_URL_LENGTH = 133
 

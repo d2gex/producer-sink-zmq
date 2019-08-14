@@ -1,6 +1,6 @@
 import zmq
 
-from pushpull_zmq import errors, push_peer
+from producer_sink import errors, push_peer
 
 
 class Producer(push_peer.PushPeer):

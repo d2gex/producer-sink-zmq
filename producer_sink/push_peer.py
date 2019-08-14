@@ -1,7 +1,7 @@
 import time
 import zmq
 
-from pushpull_zmq import errors, ipeer
+from producer_sink import errors, ipeer
 
 NUM_ATTEMPTS = 10
 

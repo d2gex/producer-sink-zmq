@@ -3,7 +3,7 @@ import time
 import multiprocessing
 
 from pymulproc import mpq_protocol
-from pushpull_zmq import sink, producer
+from producer_sink import sink, producer
 
 
 class StubBase:

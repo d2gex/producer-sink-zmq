@@ -1,6 +1,6 @@
 import zmq
 
-from pushpull_zmq import errors, ipeer
+from producer_sink import errors, ipeer
 
 POLLING_TIMEOUT = 10
 
