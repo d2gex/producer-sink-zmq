@@ -1,7 +1,4 @@
 import abc
-import zmq
-
-from producer_sink import errors
 
 MAX_IPC_URL_LENGTH = 133
 
@@ -11,18 +8,19 @@ class IPeer(abc.ABC):
     and clutter common code around its constructor
     '''
 
-    def __init__(self, url, identity, context=None, s_type=zmq.PUSH, **kwargs):
+    def __init__(self, url, identity, **kwargs):
         if 'ipc://' in url and len(url) > MAX_IPC_URL_LENGTH:
-            raise errors.PushPullError(f"IPC URL '{url}' cannot have more than {MAX_IPC_URL_LENGTH} characters long")
-        self.context = context or zmq.Context()
-        self.socket = self.context.socket(s_type)
-        self.socket.setsockopt(zmq.LINGER, kwargs.get('linger', -1))  # -1 is the default value according to zeromq
+            raise ValueError(f"IPC URL '{url}' cannot have more than {MAX_IPC_URL_LENGTH} characters long")
         self.url = url
         self.identity = identity
-        self.socket_type = s_type
+        self.linger = kwargs.get('linger', 0)
+        self.timeout = None
+        self.socket = None
+        self.socket_type = None
+        self.context = None
 
     @abc.abstractmethod
-    def run(self, data=None):
+    def run(self, *args, **kwargs):
         pass
 
     def clean(self):

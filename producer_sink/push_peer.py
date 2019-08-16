@@ -1,9 +1,7 @@
 import time
 import zmq
 
-from producer_sink import errors, ipeer
-
-NUM_ATTEMPTS = 10
+from producer_sink import ipeer
 
 
 class PushPeer(ipeer.IPeer):
@@ -13,17 +11,18 @@ class PushPeer(ipeer.IPeer):
     This class is not usually instantiated
     '''
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, timeout=1, num_attempts=5, context=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.socket_type != zmq.PUSH:
-            raise errors.PushPullError(f"'{self.__class__.__name__}' end instantiated with the wrong socket type: "
-                                       f"{self.socket_type}")
-
-        self.sndhwm = kwargs.get('sndhwm', 1000)  # 1000 is the default value according to zeromq
+        self.timeout = timeout
+        self.num_attempts = num_attempts
+        self.sndhwm = kwargs.get('sndhwm', 1000)  # 1000 is the default value according to Zeromq
+        self.socket_type = zmq.PUSH
+        self.context = context or zmq.Context()
+        self.socket = self.context.socket(self.socket_type)
+        self.socket.setsockopt(zmq.LINGER, self.linger)
         self.socket.setsockopt(zmq.SNDHWM, self.sndhwm)
-        self.mute_time_out = kwargs.get('time_out', 1)
 
-    def run(self, data=None):
+    def run(self, data):
         '''It sends a message downstream following a round-robin approach according to ZeroMQ documentation
 
         If the other end is not available, it will keep storing outgoing messages on its queue until the queue is full.
@@ -31,13 +30,13 @@ class PushPeer(ipeer.IPeer):
         until certain amount attempts have been reached.
         '''
         stop = False
-        loops = NUM_ATTEMPTS
+        loops = self.num_attempts
         while not stop and loops:
             try:
                 self.socket.send_json(data, flags=zmq.NOBLOCK)
             except zmq.error.Again:  # an exception is thrown if the message can't be sent because the queue is full
                 loops -= 1
-                time.sleep(self.mute_time_out)  # Give some time to the other end to recover
+                time.sleep(self.timeout)  # Give some time to the other end to recover
             else:
                 stop = True
         return stop

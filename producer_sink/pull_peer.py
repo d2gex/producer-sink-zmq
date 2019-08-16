@@ -1,6 +1,6 @@
 import zmq
 
-from producer_sink import errors, ipeer
+from producer_sink import ipeer
 
 POLLING_TIMEOUT = 10
 
@@ -12,16 +12,17 @@ class PullPeer(ipeer.IPeer):
     This class is not usually instantiated
     '''
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, timeout=10, context=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.socket_type != zmq.PULL:
-            raise errors.PushPullError(f"'{self.__class__.__name__}' end instantiated with the wrong socket "
-                                       f"type: {self.socket_type}")
-        self.timeout = kwargs.get('timeout', POLLING_TIMEOUT)
+        self.timeout = timeout
+        self.socket_type = zmq.PULL
+        self.context = context or zmq.Context()
+        self.socket = self.context.socket(self.socket_type)
+        self.socket.setsockopt(zmq.LINGER, self.linger)
         self.poller = zmq.Poller()
         self.poller.register(self.socket, zmq.POLLIN)
 
-    def run(self, data=None):
+    def run(self):
         '''Polls the socket in order to know if there is anything available to pick
         '''
         poll = dict(self.poller.poll(self.timeout))

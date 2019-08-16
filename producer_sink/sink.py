@@ -1,6 +1,4 @@
-import zmq
-
-from producer_sink import errors, pull_peer
+from producer_sink import pull_peer
 
 
 class Sink(pull_peer.PullPeer):
@@ -9,9 +7,4 @@ class Sink(pull_peer.PullPeer):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        try:
-            self.socket.bind(self.url)
-        except zmq.error.ZMQError as ex:
-            raise errors.PushPullError(f"Unable to bind PULL socket with url {self.url}. "
-                                       f"Ensure that the type of url and socket are the correct ones") from ex
+        self.socket.bind(self.url)

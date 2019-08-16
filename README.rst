@@ -16,14 +16,14 @@ Install and Run
 Producer-Sink-ZMQ is not available on PyPI yet, so you need to install it with pip providing a GitHub path as
 follows::
 
-    $ pip install git+https://github.com/d2gex/producer-sink-zmq.git@0.1.1#egg=producer-sink-zmq
+    $ pip install git+https://github.com/d2gex/producer-sink-zmq.git@0.1.2#egg=producer-sink-zmq
 
 
 .. code-block:: python
 
     ''' A producer that sends a sequence of number in descending order starting at 10 '''
 
-    producer = producer.Producer(url=tcp://127.0.0.1:5556, identity='Producer Name', linger=0)
+    producer = producer.Producer(url=tcp://127.0.0.1:5556, identity='Producer Name')
     loops = 10
     while loops:
         producer.run(loops)
@@ -39,7 +39,7 @@ where:
 
     ''' A sink that receives a sequence of number in descending order starting at 10 '''
 
-    sink = producer.Sink(url=tcp://127.0.0.1:5556, identity='Sink Name', linger=0, s_type=zmq.PULL)
+    sink = producer.Sink(url=tcp://127.0.0.1:5556, identity='Sink Name')
     loops = 10
     while loops:
         data = producer.run()

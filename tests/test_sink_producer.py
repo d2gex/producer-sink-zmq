@@ -1,91 +1,30 @@
 import pytest
-import zmq
 import multiprocessing
 import time
 
 from pymulproc import factory, mpq_protocol
-from producer_sink import errors, ipeer, sink, producer
-from unittest.mock import patch
+from producer_sink import ipeer, sink, producer
 from tests import utils as test_utils, stubs
 
 
 def call_sink(cls, url, peer_name, comm, loops):
     '''Call a sink-like stub
     '''
-    s = cls(identity=peer_name, url=url, s_type=zmq.PULL, linger=0)
+    s = cls(identity=peer_name, url=url)
     s.mock(comm, loops=loops)
 
 
 def call_producer(cls, url, peer_name, q_factory, parent_pid):
     '''Call a producer-like stub
     '''
-    s = cls(identity=peer_name, url=url, linger=0, parent_pid=parent_pid)
+    s = cls(identity=peer_name, url=url, parent_pid=parent_pid)
     s.mock(q_factory.child(timeout=0.1), parent_pid=parent_pid)
-
-
-def test_producer_instantiation():
-    '''A producer should always be a 'PUSH' socket type and never given a wildcard-type of url
-            '''
-
-    # Wrong socket type
-    identity = 'WrongSocketType'
-    try:
-        p_end = producer.Producer(
-            url=test_utils.TCP_CONNECT_URL_SOCKET,
-            identity=identity,
-            s_type=zmq.PULL)
-
-    except errors.PushPullError:
-        pass
-    else:
-        p_end.clean()
-        raise AssertionError(f"The following expected exception was not triggered: {errors.PushPullError} "
-                             f"on socket {identity}")
-
-    # A Producer cannot be given an url with a wildcard as it is always a connect with a specific connection to url
-    identity = 'UrlWithoutWildCard'
-    url_with_wild_card = test_utils.TCP_CONNECT_URL_SOCKET.replace(test_utils.TCP_CLIENT_ADDRESS, '*')
-    try:
-        p_end = producer.Producer(
-            url=url_with_wild_card,
-            identity=identity)
-
-    except errors.PushPullError:
-        pass
-    else:
-        p_end.clean()
-        raise AssertionError(f"The following expected exception was not triggered: {errors.PushPullError} "
-                             f"on socket {identity}")
-
-
-def test_sink_instantiation():
-    '''A sink should always be a 'PULL' socket type
-    '''
-
-    identity = 'WrongSocketType'
-    try:
-        sink_end = sink.Sink(
-            url=test_utils.TCP_BIND_URL_SOCKET,
-            identity=identity,
-            s_type=zmq.PUSH
-        )
-    except errors.PushPullError:
-        pass
-    else:
-        sink_end.clean()  # Ensure the socket is close if the test DOEST NOT fail
-        raise AssertionError(f"The following expected exception was not triggered: {errors.PushPullError} on "
-                             f"socket {identity}")
-
-    with patch('zmq.Context.socket') as mock_socket:
-        mock_socket.return_value.bind.side_effect = zmq.error.ZMQError()
-        with pytest.raises(errors.PushPullError):
-            sink.Sink(url=test_utils.TCP_BIND_URL_SOCKET, identity=identity, s_type=zmq.PULL)
 
 
 def test_ipc_url_max_length():
 
-    with pytest.raises(errors.PushPullError):
-        sink.Sink(url=f"ipc://{'a' * (ipeer.MAX_IPC_URL_LENGTH + 1)}", identity='url_too_long', s_type=zmq.PULL)
+    with pytest.raises(ValueError):
+        sink.Sink(url=f"ipc://{'a' * (ipeer.MAX_IPC_URL_LENGTH + 1)}", identity='url_too_long')
 
 
 def test_producer_sink_single_connection():
@@ -102,7 +41,7 @@ def test_producer_sink_single_connection():
                                                  child_com,
                                                  100))
 
-    push_producer = producer.Producer(url=test_utils.TCP_CONNECT_URL_SOCKET, identity='ProducerOK', linger=0)
+    push_producer = producer.Producer(url=test_utils.TCP_CONNECT_URL_SOCKET, identity='ProducerOK')
 
     message = {
         'identity': push_producer.identity,
@@ -214,12 +153,7 @@ def test_multiple_producer_one_sink():
                                                        cname + "_" + str(offset),
                                                        queue_factory, parent_pid)))
 
-    sink_pull = sink.Sink(
-        url=test_utils.TCP_BIND_URL_SOCKET,
-        identity="SinkReceiveMultiplePushes",
-        s_type=zmq.PULL
-        )
-
+    sink_pull = sink.Sink(url=test_utils.TCP_BIND_URL_SOCKET, identity="SinkReceiveMultiplePushes")
     all_client_data = []
     try:
         for client in producers:

@@ -1,6 +1,4 @@
-import zmq
-
-from producer_sink import errors, push_peer
+from producer_sink import push_peer
 
 
 class Producer(push_peer.PushPeer):
@@ -9,8 +7,4 @@ class Producer(push_peer.PushPeer):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        try:
-            self.socket.connect(self.url)
-        except zmq.error.ZMQError as ex:
-            raise errors.PushPullError(f"The url: {self.url} is not appropriate for a '{self.__class__.__name__}' end") \
-                from ex
+        self.socket.connect(self.url)
