@@ -12,11 +12,10 @@ class PullPeer(ipeer.IPeer):
     This class is not usually instantiated
     '''
 
-    def __init__(self, timeout=10, context=None, *args, **kwargs):
+    def __init__(self, *args, timeout=10, **kwargs):
         super().__init__(*args, **kwargs)
         self.timeout = timeout
         self.socket_type = zmq.PULL
-        self.context = context or zmq.Context()
         self.socket = self.context.socket(self.socket_type)
         self.socket.setsockopt(zmq.LINGER, self.linger)
         self.poller = zmq.Poller()
