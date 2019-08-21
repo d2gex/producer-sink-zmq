@@ -16,7 +16,7 @@ Install and Run
 Producer-Sink-ZMQ is not available on PyPI yet, so you need to install it with pip providing a GitHub path as
 follows::
 
-    $ pip install git+https://github.com/d2gex/producer-sink-zmq.git@0.1.2#egg=producer-sink-zmq
+    $ pip install git+https://github.com/d2gex/producer-sink-zmq.git@0.1.3#egg=producer-sink-zmq
 
 
 .. code-block:: python
